@@ -8,7 +8,7 @@ export type Address = `0x${string}`;
 export interface ContractParams {
   contractAddress?: Address;
   networkId?: number;
-  deploymentBlock?: number;
+  fromBlock?: number;
   state?: State;
 }
 
@@ -21,14 +21,14 @@ export interface SearchProps {
 export interface GovernorState {
   address: Address | undefined;
   contract: ethers.Contract | null;
-  deploymentBlock: number | null;
+  fromBlock: number | null;
   name: string | undefined;
 }
 
 export interface TokenState {
   address: Address | undefined;
   contract: ethers.Contract | null;
-  deploymentBlock: number | null;
+  fromBlock: number | null;
 }
 
 export interface Proposal {

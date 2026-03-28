@@ -18,11 +18,13 @@ export const useTotalVotes = ({
 
   useEffect(() => {
     const fetchTotalVotes = async () => {
-      if (typeof window.ethereum !== "undefined") {
+      const ethereum = (window as any).ethereum as
+        | ethers.providers.ExternalProvider
+        | undefined;
+
+      if (typeof ethereum !== "undefined") {
         try {
-          const provider = new ethers.providers.Web3Provider(
-            window.ethereum as ethers.providers.ExternalProvider
-          );
+          const provider = new ethers.providers.Web3Provider(ethereum);
           const contract = new ethers.Contract(
             governanceContractAddress,
             OZGovernor_ABI,

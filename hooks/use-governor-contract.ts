@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
-import { useEffect, useRef, useState } from "react";
-import { useProvider } from "wagmi";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { gnosis } from "wagmi/chains";
 
 import { useFormattedProposals } from "@/hooks/use-formatted-proposals";
 import { useDeploymentBlock } from "@hooks/use-deployment-block";
@@ -23,20 +23,22 @@ export function useGovernorContract({
 }) {
   const [overallProgress, setOverallProgress] = useState(0);
 
-  // reset provider when networkId changes
-  const provider = useProvider({
-    chainId: parseInt(values.networkId?.toString() as string),
-  });
+  // Wagmi v3 n'exporte plus `useProvider`. Les hooks ci-dessous s'attendent à un
+  // provider ethers, donc on construit un JsonRpcProvider via l'URL RPC de gnosis.
+  const networkId = values.networkId ? Number(values.networkId) : undefined;
+  const rpcUrl =
+    (networkId === gnosis.id ? gnosis.rpcUrls.default.http[0] : undefined) ??
+    gnosis.rpcUrls.default.http[0];
+  const provider = useMemo(
+    () => new ethers.providers.JsonRpcProvider(rpcUrl),
+    [rpcUrl]
+  );
 
   const dao = selectDAOByGovernorAddress(values.contractAddress);
 
   // Search for the Deployment block of Governor
   const { blockNumber, success, currentSearchBlock, deploymentProgress } =
-    useDeploymentBlock(
-      provider,
-      values.contractAddress,
-      values.deploymentBlock || 0
-    );
+    useDeploymentBlock(provider, values.contractAddress, values.fromBlock || 0);
 
   // When governor is found, create a contract instance and set it to state
   const governorContractRef = useRef(state.governor.contract);
@@ -62,7 +64,7 @@ export function useGovernorContract({
         governor: {
           ...prevState.governor,
           contract: governorContract,
-          deploymentBlock: blockNumber,
+          fromBlock: blockNumber,
           name: undefined,
         },
       }));
@@ -89,9 +91,9 @@ export function useGovernorContract({
     provider,
     values.contractAddress,
     blockRange,
-    values.deploymentBlock === 0 && state.governor.deploymentBlock != null
-      ? state.governor.deploymentBlock
-      : values.deploymentBlock ?? null,
+    values.fromBlock === 0 && state.governor.fromBlock != null
+      ? state.governor.fromBlock
+      : values.fromBlock ?? null,
     true
   );
 
@@ -108,9 +110,27 @@ export function useGovernorContract({
   );
 
   useEffect(() => {
-    const combinedProgress = deploymentProgress * 0.2 + searchProgress * 0.8;
-    setOverallProgress(combinedProgress);
-  }, [deploymentProgress, searchProgress]);
+    // La recherche de propositions peut finir à 100 % pendant que la détection du bloc
+    // de déploiement tourne encore (ex. fromBlock renseigné). Le mix 20/80 ne peut alors
+    // jamais atteindre 100 tant que deployment < 100 → UI bloquée sur « Connecting… ».
+    const combinedProgress =
+      searchProgress >= 100
+        ? 100
+        : deploymentProgress * 0.2 + searchProgress * 0.8;
+    console.log(
+      `[useGovernorContract] Progress - Deployment: ${deploymentProgress.toFixed(0)}%, Search: ${searchProgress.toFixed(0)}%, Overall: ${combinedProgress.toFixed(0)}%`
+    );
+    console.log(
+      `[useGovernorContract] Proposals count - raw: ${proposals.length}, parsed: ${parsedProposals.length}, formatted: ${formattedProposals.length}`
+    );
+    setOverallProgress(Math.min(100, Math.round(combinedProgress)));
+  }, [
+    deploymentProgress,
+    searchProgress,
+    proposals.length,
+    parsedProposals.length,
+    formattedProposals.length,
+  ]);
 
   return {
     overallProgress,

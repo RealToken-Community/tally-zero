@@ -454,5 +454,13 @@
     "imageUrl": "https://www.tally.xyz/_next/image?url=https%3A%2F%2Fstatic.tally.xyz%2F785ec80a-5fcd-49e8-b50b-26c9dcd7c7b8_original.jpeg&w=256&q=75",
     "ethAddresses": ["0x41fa7898cc5067eb1ee73a2205ee30cc514d6c71"],
     "maxBlockRange": 50000
+  },
+  {
+    "name": "Realtoken Ecosystem Governance",
+    "networkId": 100,
+    "imageUrl": "https://www.tally.xyz/_next/image?url=https%3A%2F%2Fstatic.tally.xyz%2F490cd20e-1264-4d57-9c52-40cdb97eac94_original.png&w=256&q=75",
+    "ethAddresses": ["0x4A5327347f077E72d2AaB19F68Ba8A7F12ec5d63"],
+    "maxBlockRange": 500000,
+    "fromBlock": 34857901
   }
 ]

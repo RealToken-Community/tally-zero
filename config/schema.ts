@@ -6,7 +6,7 @@ const ethAddressRegex = /^0x[a-fA-F0-9]{40}$/;
 export const formSchema = z.object({
   address: z.string().regex(ethAddressRegex, "Invalid Ethereum address"),
   networkId: z.string(),
-  deploymentBlock: z.number().optional(),
+  fromBlock: z.coerce.number().optional(),
 });
 
 export const voteSchema = z.object({
@@ -36,5 +36,6 @@ export const daoSchema = z.object({
   imageUrl: z.string(),
   ethAddresses: z.array(z.string().regex(ethAddressRegex)),
   maxBlockRange: z.number(),
+  fromBlock: z.number().optional(),
 });
 export type DAO = z.infer<typeof daoSchema>;

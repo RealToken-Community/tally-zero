@@ -1,10 +1,11 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { useContractWrite, usePrepareContractWrite } from "wagmi";
+import { useWriteContract } from "wagmi";
 
 import { Button } from "@components/ui/Button";
 import { Card, CardContent } from "@components/ui/Card";
@@ -35,26 +36,21 @@ export default function VoteForm({
     resolver: zodResolver(voteSchema),
   });
 
-  const {
-    config,
-    error: prepareError,
-    isError: isPrepareError,
-  } = usePrepareContractWrite({
-    abi: OZ_Governor_ABI,
-    address: `0x${proposal.contractAddress.slice(2)}`,
-    functionName: "castVote",
-    args: [proposal.id, form.getValues("vote")],
-  });
+  const { isPending, isSuccess, writeContractAsync } = useWriteContract();
 
-  const { data, isLoading, isSuccess, write } = useContractWrite(config);
-  if (data) {
-    toast("Your vote has been submitted.");
-  }
+  useEffect(() => {
+    if (isSuccess) toast("Your vote has been submitted.");
+  }, [isSuccess]);
 
   async function onSubmit(values: z.infer<typeof voteSchema>) {
     try {
       await new Promise((resolve) => setTimeout(resolve, 500));
-      write?.();
+      await writeContractAsync({
+        abi: OZ_Governor_ABI,
+        address: `0x${proposal.contractAddress.slice(2)}`,
+        functionName: "castVote",
+        args: [BigInt(proposal.id), Number(values.vote)],
+      });
     } catch (error) {
       console.log(error);
     }
@@ -124,7 +120,7 @@ export default function VoteForm({
             </DialogClose>
 
             {proposal.state === "active" ? (
-              isLoading ? (
+              isPending ? (
                 <Button variant="secondary" disabled>
                   <ReloadIcon className="w-4 h-4 mr-2 animate-spin" />
                   Voting

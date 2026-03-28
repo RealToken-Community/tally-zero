@@ -21,7 +21,10 @@ export const useSearchProposals: UseSearchProposals = (
   };
 
   useEffect(() => {
-    if (!enabled || !provider || !contractAddress || !startingBlock) return;
+    // startingBlock peut être 0 (bloc valide) : ne pas utiliser !startingBlock
+    if (!enabled || !provider || !contractAddress || startingBlock == null) {
+      return;
+    }
 
     const contract = new Contract(contractAddress, OZGovernor_ABI, provider);
 
@@ -35,30 +38,43 @@ export const useSearchProposals: UseSearchProposals = (
           0
         );
 
+        // Créer des batches de requêtes pour réduire les appels RPC
+        const ranges: Array<{ from: number; to: number }> = [];
         for (
           let fromBlock = startBlock;
           fromBlock <= currentBlock - blockRange;
           fromBlock += blockRange
         ) {
           const toBlock = Math.min(fromBlock + blockRange - 1, currentBlock);
+          ranges.push({ from: fromBlock, to: toBlock });
+        }
 
-          setSearchProgress(
-            ((fromBlock - startBlock) / (currentBlock - startBlock)) * 100
+        // Traiter par lots de 10 requêtes simultanées max
+        const CONCURRENT_QUERIES = 10;
+        for (let i = 0; i < ranges.length; i += CONCURRENT_QUERIES) {
+          const batchRanges = ranges.slice(i, i + CONCURRENT_QUERIES);
+
+          const batchPromises = batchRanges.map(async ({ from, to }) => {
+            try {
+              return await contract.queryFilter(
+                proposalCreatedFilter,
+                from,
+                to
+              );
+            } catch (error) {
+              console.warn(`Error querying blocks ${from}-${to}:`, error);
+              return [];
+            }
+          });
+
+          const batchResults = await Promise.all(batchPromises);
+          const allEvents = batchResults.flat();
+
+          console.log(
+            `[useSearchProposals] Batch ${i / CONCURRENT_QUERIES + 1}/${Math.ceil(ranges.length / CONCURRENT_QUERIES)}: Found ${allEvents.length} events`
           );
 
-          let events: Array<ethers.Event> = [];
-          try {
-            events = await contract.queryFilter(
-              proposalCreatedFilter,
-              fromBlock,
-              toBlock
-            );
-          } catch (error) {
-            events = [];
-            console.warn("Error parsing proposals:", error);
-          }
-
-          const newProposals = events.map((event) => {
+          const newProposals = allEvents.map((event) => {
             const {
               proposalId,
               proposer,
@@ -86,20 +102,31 @@ export const useSearchProposals: UseSearchProposals = (
               state: 0,
             };
           });
+
           if (newProposals.length > 0) {
             proposals = [...proposals, ...newProposals];
           }
+
+          setSearchProgress(((i + batchRanges.length) / ranges.length) * 100);
         }
 
+        console.log(
+          `[useSearchProposals] Search complete: Found ${proposals.length} proposals`
+        );
         setProposals(proposals);
         setSearchProgress(100);
         return cancelSearch;
       } catch (error) {
         console.warn("Error fetching proposals:", error);
+        setProposals([]);
+        setSearchProgress(100);
       }
     };
 
-    fetchProposals().catch(console.warn);
+    fetchProposals().catch((err) => {
+      console.warn(err);
+      setSearchProgress(100);
+    });
   }, [provider, contractAddress, startingBlock, enabled, blockRange]);
 
   return { proposals, searchProgress };

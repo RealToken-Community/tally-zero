@@ -7,13 +7,13 @@ export const initialState: State = {
   governor: {
     address: undefined,
     contract: null,
-    deploymentBlock: null,
+    fromBlock: null,
     name: undefined,
   },
   token: {
     address: undefined,
     contract: null,
-    deploymentBlock: null,
+    fromBlock: null,
   },
   proposals: [],
 };

@@ -32,7 +32,6 @@
 ### Services
 
 - Github Actions (CI/CD)
-- Web3Modal (Wallet connection)
 - Ethers (Fetching proposals)
 
 ## Star History
@@ -40,8 +39,6 @@
 [![Star History Chart](https://api.star-history.com/svg?repos=withtally/tally-zero&type=Date)](https://star-history.com/#withtally/tally-zero&Date)
 
 # Essential Guidelines
-
-For hosting options other than the ones provided, such as [IPFS Deployment](https://ipfs.thirdwebcdn.com/ipfs/QmfGUuMzLqHyAybnUsPG6aMwQ241V6Q69AmPxCWsVsTDcD) or [Vercel Deployment](https://tally-zero-preview.vercel.app/), we suggest visiting [Web3Modal](https://cloud.walletconnect.com/sign-in) to establish a new project. Subsequently, create a `.env` or `.env.local` file, or input it as an environment variable in your hosting provider. Ensure the naming convention is `NEXT_PUBLIC_WEB3STORAGE_PROJECT_ID`.
 
 The project's pages are located in the `/app` directory, with components organized as follows:
 
@@ -54,7 +51,7 @@ The project's pages are located in the `/app` directory, with components organiz
 
 The `/config` folder is crucial for maintenance purposes:
 
-- `chains.ts`: Contains all chains for Web3Modal connection
+- `chains.ts`: Contains all chains for Web3 connection
 - `data.ts`: Lists the chains supported by Tally Zero (refer to the image). You can add as many as required.
 
 ![Supported Chains](/public/readme/chain.png)

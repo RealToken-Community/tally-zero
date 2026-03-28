@@ -1,7 +1,10 @@
 export async function getUserAddress() {
-  if (window.ethereum) {
+  const ethereum =
+    typeof window !== "undefined" ? (window as any).ethereum : undefined;
+
+  if (ethereum) {
     try {
-      const accounts = await window.ethereum.request({
+      const accounts = await ethereum.request({
         method: "eth_requestAccounts",
       });
       return accounts[0];

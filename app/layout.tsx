@@ -3,7 +3,6 @@ import "@styles/globals.css";
 import { siteConfig } from "@config/site";
 import { GeistSans } from "geist/font/sans";
 
-import { Web3ModalProvider } from "@components/Web3ModalProvider";
 import { marketingConfig } from "@config/marketing";
 import { cn } from "@lib/utils";
 
@@ -12,9 +11,10 @@ import { ButtonNav } from "@components/navigation/ButtonNav";
 import { MainNav } from "@components/navigation/MainNav";
 import { SiteFooter } from "@components/navigation/SiteFooter";
 
-import { Analytics } from "@components/Analytics";
 import { TailwindIndicator } from "@components/TailwindIndicator";
 import { ThemeProvider } from "@components/ThemeProvider";
+
+import { ClientProviders } from "./providers";
 
 export const metadata = {
   title: {
@@ -58,11 +58,42 @@ interface RootLayoutProps {
   children: React.ReactNode;
 }
 
+// export default function RootLayout({ children }: RootLayoutProps) {
+//   return (
+//     <html lang="en" suppressHydrationWarning>
+//       <head />
+
+//       <body
+//         className={cn(
+//           "min-h-screen font-sans antialiased bg-gradient-to-b from-[#ffffff] via-[#efecff] to-[#e8e4ff] dark:from-[#1c1733] dark:via-[#16102b] dark:to-[#0f0c1b] transition-colors duration-200 ease-in-out",
+//           GeistSans.className
+//         )}
+//       >
+//         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+//           <Web3Provider>
+//             <header className="container z-40">
+//               <div className="flex h-20 items-center justify-between py-6">
+//                 <MainNav items={marketingConfig.mainNav} />
+//                 <ButtonNav />
+//               </div>
+//             </header>
+
+//             {children}
+//             <SiteFooter />
+
+//             <Toaster />
+//             <TailwindIndicator />
+//           </Web3Provider>
+//         </ThemeProvider>
+//       </body>
+//     </html>
+//   );
+// }
+
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head />
-
       <body
         className={cn(
           "min-h-screen font-sans antialiased bg-gradient-to-b from-[#ffffff] via-[#efecff] to-[#e8e4ff] dark:from-[#1c1733] dark:via-[#16102b] dark:to-[#0f0c1b] transition-colors duration-200 ease-in-out",
@@ -70,21 +101,18 @@ export default function RootLayout({ children }: RootLayoutProps) {
         )}
       >
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <Web3ModalProvider>
+          <ClientProviders>
             <header className="container z-40">
               <div className="flex h-20 items-center justify-between py-6">
                 <MainNav items={marketingConfig.mainNav} />
                 <ButtonNav />
               </div>
             </header>
-
             {children}
             <SiteFooter />
-
             <Toaster />
-            <Analytics />
             <TailwindIndicator />
-          </Web3ModalProvider>
+          </ClientProviders>
         </ThemeProvider>
       </body>
     </html>

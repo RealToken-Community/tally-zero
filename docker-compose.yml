@@ -1,0 +1,18 @@
+services:
+  tally:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: tally
+    networks:
+      - traefik-realt
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.tally.rule=Host(`tally.backup.realtoken.community`)"
+      - "traefik.http.routers.tally.middlewares=auth@file"
+      - "traefik.http.services.tally.loadbalancer.server.port=3000"
+    restart: always
+
+networks:
+  traefik-realt:
+    external: true

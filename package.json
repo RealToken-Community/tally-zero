@@ -1,6 +1,6 @@
 {
   "name": "tally-zero",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -39,10 +39,8 @@
     "@radix-ui/react-separator": "^1.0.3",
     "@radix-ui/react-slot": "^1.0.2",
     "@t3-oss/env-nextjs": "^0.10.1",
+    "@tanstack/react-query": "^5.91.0",
     "@tanstack/react-table": "^8.11.7",
-    "@vercel/analytics": "^1.1.2",
-    "@web3modal/ethereum": "^2.7.1",
-    "@web3modal/react": "^2.7.1",
     "addreth": "^1.2.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
@@ -52,6 +50,7 @@
     "lucide-react": "^0.316.0",
     "next": "14.2.34",
     "next-themes": "^0.2.1",
+    "porto": "^0.2.37",
     "react": "^18.2.0",
     "react-dom": "^18",
     "react-hook-form": "^7.49.3",
@@ -61,7 +60,8 @@
     "tailwindcss-animate": "^1.0.7",
     "usehooks-ts": "^2.13.0",
     "vaul": "^0.9.0",
-    "wagmi": "^0.12.6",
+    "viem": "2",
+    "wagmi": "^3.5.0",
     "zod": "^3.22.4"
   },
   "devDependencies": {

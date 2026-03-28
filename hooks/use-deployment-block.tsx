@@ -8,7 +8,7 @@ const MAX_BLOCK_DIFF = 128;
 export const useDeploymentBlock = (
   provider: providers.Provider,
   contractAddress: Address | undefined,
-  deploymentBlock: number
+  fromBlock: number
 ): UseDeploymentBlockResult => {
   const cancelSearchRef = useRef(false);
   const [success, setSuccess] = useState(false);
@@ -37,14 +37,13 @@ export const useDeploymentBlock = (
         throw new Error("Contract not currently deployed");
       }
 
-      const currentBlockNumber =
-        deploymentBlock || (await provider.getBlockNumber());
+      const currentBlockNumber = fromBlock || (await provider.getBlockNumber());
 
       let [lowerBound, upperBound] = [0, currentBlockNumber];
       let deployedBlockNumber: number | null = null;
       const maxIterations = Math.ceil(Math.log2(currentBlockNumber));
 
-      if (currentBlockNumber - deploymentBlock > MAX_BLOCK_DIFF) {
+      if (currentBlockNumber - fromBlock > MAX_BLOCK_DIFF) {
         const lastBlock = currentBlockNumber - MAX_BLOCK_DIFF;
         lowerBound = lastBlock;
       }
@@ -92,7 +91,7 @@ export const useDeploymentBlock = (
     findDeploymentBlock();
 
     return cancelSearch;
-  }, [contractAddress, provider, deploymentBlock]);
+  }, [contractAddress, provider, fromBlock]);
 
   return {
     blockNumber,

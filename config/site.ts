@@ -1,7 +1,7 @@
 import type { SiteConfig } from "@types";
 import path from "path";
 
-const url = "https://zero.tally.xyz";
+const url = "https://tally.backup.realtoken.community";
 export const siteConfig = {
   name: "Tally Zero",
   description: "A decentralized zero dependency voting client",

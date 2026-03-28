@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { cn } from "@lib/utils";
-import { Web3Button, Web3NetworkSwitch } from "@web3modal/react";
+import { useAccount, useConnect, useDisconnect } from "wagmi";
 
 import { Icons } from "@components/Icons";
 import { buttonVariants } from "@components/ui/Button";
@@ -27,10 +27,20 @@ const LoadingSkeleton = () => (
   </>
 );
 
+function isExplorePath(pathname: string) {
+  // next.config trailingSlash: true → pathname est souvent "/explore/", pas "/explore"
+  const base = pathname.replace(/\/$/, "") || "/";
+  return base === "/explore";
+}
+
 export function ButtonNav() {
   const pathname = usePathname();
-  const isExplore = pathname === "/explore";
+  const isExplore = isExplorePath(pathname);
   const [loading, setLoading] = useState(true);
+
+  const { connect, connectors } = useConnect();
+  const { address, isConnected } = useAccount();
+  const { disconnect } = useDisconnect();
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -43,22 +53,43 @@ export function ButtonNav() {
   return (
     <nav>
       {isExplore ? (
-        <div className="flex items-center gap-2 px-4 py-2">
+        <div className="flex items-center gap-2">
           {loading ? (
-            <div className="px-0">
-              <LoadingSkeleton />
-              <LoadingSkeleton />
-            </div>
+            <LoadingSkeleton />
           ) : (
             <>
-              <Web3NetworkSwitch />
-              <Web3Button />
+              {isConnected && address ? (
+                <button
+                  onClick={() => disconnect()}
+                  className={cn(
+                    buttonVariants({ variant: "outline", size: "sm" }),
+                    "px-4"
+                  )}
+                >
+                  {address.slice(0, 6)}...{address.slice(-4)}
+                </button>
+              ) : (
+                <button
+                  onClick={() => {
+                    if (connectors && connectors.length > 0) {
+                      connect({ connector: connectors[0] });
+                    }
+                  }}
+                  className={cn(
+                    buttonVariants({ variant: "default", size: "sm" }),
+                    "px-4"
+                  )}
+                >
+                  <Icons.link className="w-4 h-4 mr-2" />
+                  Connect Wallet
+                </button>
+              )}
             </>
           )}
         </div>
       ) : (
         <Link
-          href="/explore"
+          href="/explore/"
           className={cn(
             buttonVariants({ variant: "default", size: "sm" }),
             "px-4"

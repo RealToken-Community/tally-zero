@@ -32,13 +32,31 @@ export default function ContractForm({ form, progress }: ContractFormProps) {
 
   const addressWatched = form.watch("address");
 
+  // Pré-remplir avec RealToken DAO par défaut
+  useEffect(() => {
+    if (!addressWatched) {
+      form.setValue("address", "0x4A5327347f077E72d2AaB19F68Ba8A7F12ec5d63");
+      form.setValue("networkId", "100");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   useEffect(() => {
     const dao = selectDAOByGovernorAddress(addressWatched);
     setCurrDao(dao);
-    // avoid overriding networkId if user has already entered it
-    if (dao && !form.getValues("networkId")) {
-      form.setValue("networkId", String(dao.networkId));
+
+    if (dao) {
+      // Pré-remplir networkId si vide
+      if (!form.getValues("networkId")) {
+        form.setValue("networkId", String(dao.networkId));
+      }
+
+      // Pré-remplir fromBlock depuis fromBlock si disponible et si le champ est vide
+      if ("fromBlock" in dao && dao.fromBlock && !form.getValues("fromBlock")) {
+        form.setValue("fromBlock", dao.fromBlock as any);
+      }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [addressWatched]);
 
   return (
@@ -124,7 +142,7 @@ export default function ContractForm({ form, progress }: ContractFormProps) {
 
         <FormField
           control={form.control}
-          name="deploymentBlock"
+          name="fromBlock"
           render={({ field }) => (
             <FormItem className="col-span-3 py-4 lg:py-0">
               <FormLabel>Deployment block</FormLabel>

@@ -1,0 +1,46 @@
+# Dépendances & builds locaux (reconstruits dans l’image)
+node_modules
+.next
+out
+dist
+build
+
+# Git & outils
+.git
+.gitignore
+.husky
+
+# Env & secrets (injecter au run si besoin)
+.env
+.env.*
+!.env.example
+
+# Docs & CI
+*.md
+LICENSE
+
+# Tests & qualité
+coverage
+**/*.test.ts
+**/*.test.tsx
+**/*.spec.ts
+**/*.spec.tsx
+vitest.config.*
+.eslintrc*
+eslint.config.*
+
+# IDE & OS
+.vscode
+.idea
+.DS_Store
+*.log
+npm-debug.log*
+yarn-error.log*
+
+# Artefacts TypeScript / caches
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+
+# Métadonnées Docker (hors image ; le daemon lit le Dockerfile séparément)
+docker-compose*.yml
+.dockerignore
